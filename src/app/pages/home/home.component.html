@@ -1,64 +1,93 @@
-<section class="todoapp">
-  <header class="header">
-    <div class="container">
-      <h1>My Day</h1>
-      <p>All my tasks in one place</p>
+<div style="display: flex; justify-content: center ;     ">
+  <!-- Contenedor principal -->
+  <div style="width: 100%; ">
+    <!-- Encabezado de la aplicación -->
+    <div class="header"  style="text-align: center;">
+      <h1>My Day App</h1>
+      <p>Modified by Angel Garcia</p>
+
+<!-- Input para agregar nueva tarea -->
       <input
-        class="new-todo"
-        placeholder="Type new todo"
+        class="new-todo" 
+        placeholder="What needs to be done?"
         autofocus
         type="text"
-      />
+        style="max-width: 400px;"
+        [(ngModel)]="newTitle"
+        (keydown)="preventInvalidSpacing($event)"
+        (input)="onTitleInput($event)"
+        (paste)="onPaste($event)"
+        (keyup.enter)="add()" />
+
+          
     </div>
-  </header>
-  <div class="container todoapp-wrapper">
-    <!-- This section should be hidden by default and shown when there are todos -->
-    <section class="main">
-      <ul class="todo-list">
-        <li class="completed">
-          <div class="view">
-            <input class="toggle" type="checkbox" checked />
-            <label>Learn JavaScript</label>
-            <button class="destroy"></button>
-          </div>
-          <input class="edit" value="Learn JavaScript" />
-        </li>
-        <li>
-          <div class="view">
-            <input class="toggle" type="checkbox" />
-            <label>Buy a unicorn</label>
-            <button class="destroy"></button>
-          </div>
-          <input class="edit" value="Buy a unicorn" />
-        </li>
-        <li class="editing">
-          <div class="view">
-            <input class="toggle" type="checkbox" />
-            <label>Make dishes</label>
-            <button class="destroy"></button>
-          </div>
-          <input class="edit" value="Make dishes" />
-        </li>
-      </ul>
-    </section>
-    <!-- This footer should be hidden by default and shown when there are todos -->
-    <footer class="footer">
-      <!-- This should be `0 items left` by default -->
-      <span class="todo-count"><strong>0</strong> item left</span>
-      <!-- Remove this if you don't implement routing -->
-      <ul class="filters">
-        <li>
-          <a routerLink="/" class="selected">All</a>
-        </li>
-        <li>
-          <a routerLink="/pending">Pending</a>
-        </li>
-        <li>
-          <a routerLink="/completed">Completed</a>
-        </li>
-      </ul>
-      <!-- Hidden if no completed items are left ↓ -->
-      <button class="clear-completed">Clear completed</button>
-    </footer>
+    <!-- Contenedor de la lista de tareas -->
+    <div class="todoapp-wrapper" style="max-width: 400px;" [style]="{'margin': '0 auto'}">
+      <section class="todoapp">
+       
+        <!-- Sección principal con lista de tareas -->
+        <section class="main" *ngIf="todos.length > 0" id="main">
+          <ul class="todo-list">
+            <li *ngFor="let todo of filtered"
+                [class.completed]="todo.completed"
+                [class.editing]="todo === editingTodo">
+              
+              <!-- Vista normal de la tarea -->
+              <div class="view">
+                <!-- Checkbox para marcar como completada -->
+                <input class="toggle" 
+                       type="checkbox" 
+                       [checked]="todo.completed" 
+                       (change)="toggle(todo)" />
+                <label class="label" 
+                       (dblclick)="startEdit(todo, editInput)">{{ todo.title }}</label>
+                <button class="destroy" 
+                        (click)="remove(todo)"></button>
+              </div>
+              
+              <!-- Input para editar la tarea -->
+              <input class="edit"
+                     #editInput
+                     [value]="todo.title"
+                     (keydown)="preventInvalidSpacing($event)"
+                     (input)="onEditInput(editInput)"
+                     (paste)="onPaste($event)"
+                     (keyup.enter)="commitEdit(todo, editInput.value)"
+                     (keydown.escape)="cancelEdit(todo)"
+                     style="max-width: 400px;"
+                     (blur)="commitEdit(todo, editInput.value)" />
+            </li>
+          </ul>
+        </section>
+
+        <!-- Footer con contador y filtros -->
+        <footer class="footer" *ngIf="todos.length > 0" id="footer">
+          <span class="todo-count">
+            <strong>{{ remaining() }}</strong> 
+            {{ remaining() === 1 ? 'item' : 'items' }} left
+          </span>
+
+          <!-- Filtros de navegación -->
+          <ul class="filters" >
+            
+            <li><a  [class.selected]="filter === 'all'" href="#/">All</a></li>
+            <li><a [class.selected]="filter === 'active'" href="#/active">Pending</a></li>
+            <li><a [class.selected]="filter === 'completed'" href="#/completed">Completed</a></li>
+          </ul>
+
+          <!-- Botón para limpiar completadas -->
+          <button class="clear-completed"
+                  *ngIf="hasCompleted"
+                  (click)="clearCompleted()">
+            Clear completed
+          </button>
+        </footer>
+      </section>
+      
+      <!-- Mensaje cuando no hay tareas -->
+      <section class="no-todos" *ngIf="todos.length === 0" style="max-width: 400px;">
+        <p>No tasks available. Please add a task.</p>
+      </section>
+    </div>
   </div>
-</section>
+</div>
